@@ -1,0 +1,15 @@
+[
+    {
+        "state": {
+            "code": "%%chapter 11 in system design interview (vol 1)\n%% cdn((fa:fa-cloud-arrow-down\\nCDN))\n%% mq>fa:fa-envelope fa:fa-envelope fa:fa-envelope]\n%% client[client fa:fa-user]\n%% db[(DB)]\n%% graph_db[(fa:fa-circle-nodes\\nGraph DB)] \n%% lb[Load balancer fa:fa-sitemap]\n%% cache(DB cache)\n\nflowchart TD\n    gw[API Gateway]\n    client[client fa:fa-user]\n    auth[Authentication service]\n    posts[Post service]\n    posts_fanout[Fanout service]\n    fanout_workers[fanout workers]\n\n    users_cache(users DB cache)\n    posts_cache(Posts DB cache)\n    \n    posts_db[(Posts DB)]\n    users_db[(Users DB)]\n    feed_cache[(feed DB cache)]\n    graph_db[(fa:fa-circle-nodes\\nGraph DB\\nusers relationships)] \n\n    mq1>fa:fa-envelope fa:fa-envelope fa:fa-envelope]\n\n\n    client --> lb[Load balancer fa:fa-sitemap] --> gw\n    subgraph GW\n        direction RL\n        gw --- auth\n    end\n    gw --> posts\n    posts --> posts_cache --> posts_db\n    gw --> posts_fanout\n    posts_fanout --> graph_db\n    posts_fanout --> mq1\n    posts_fanout --> users_cache --> users_db\n    mq1 --> fanout_workers\n    fanout_workers --> feed_cache\n    \n",
+            "mermaid": "{\n  \"theme\": \"default\"\n}",
+            "autoSync": false,
+            "rough": false,
+            "updateDiagram": false
+        },
+        "time": 1724242608449,
+        "type": "auto",
+        "id": "946941ee-d69d-4dce-8067-3fa75d704249",
+        "name": "hissing-advantage"
+    }
+]
