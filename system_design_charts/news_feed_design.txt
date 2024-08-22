@@ -1,0 +1,43 @@
+%%chapter 11 in system design interview (vol 1)
+
+%% cdn((fa:fa-cloud-arrow-down\nCDN))
+%% mq>fa:fa-envelope fa:fa-envelope fa:fa-envelope]
+%% client[client fa:fa-user]
+%% db[(DB)]
+%% graph_db[(fa:fa-circle-nodes\nGraph DB)] 
+%% lb[Load balancer fa:fa-sitemap]
+%% cache(DB cache)
+
+flowchart TD
+    gw[API Gateway]
+    client[client fa:fa-user]
+    auth[Authentication service]
+    posts[Post service]
+    posts_fanout[Fanout service]
+    fanout_workers[fanout workers]
+
+    users_cache(users DB cache)
+    posts_cache(Posts DB cache)
+    
+    posts_db[(Posts DB)]
+    users_db[(Users DB)]
+    feed_cache[(feed DB cache)]
+    graph_db[(fa:fa-circle-nodes\nGraph DB\nusers relationships)] 
+
+    mq1>fa:fa-envelope fa:fa-envelope fa:fa-envelope]
+
+
+    client --> lb[Load balancer fa:fa-sitemap] --> gw
+    subgraph GW
+        direction RL
+        gw --- auth
+    end
+    gw --> posts
+    posts --> posts_cache --> posts_db
+    gw --> posts_fanout
+    posts_fanout --> graph_db
+    posts_fanout --> mq1
+    posts_fanout --> users_cache --> users_db
+    mq1 --> fanout_workers
+    fanout_workers --> feed_cache
+    
