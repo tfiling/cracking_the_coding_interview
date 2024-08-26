@@ -1,0 +1,106 @@
+flowchart LR
+%% client[web client fa:fa-user]
+%% ws[web server]
+%% rmq>fa:fa-envelope fa:fa-envelope fa:fa-envelope RMQ]
+%% db[(MongoDB)]
+%% collector[collector fa:fa-computer]
+%% mgmt_gw[MGMT gateway]
+%% mgmt_core[MGMT core]
+%% policy_enforcer[policy enforcer]
+%% cnc[CNC]
+%% download_manager[Download Manager]
+%% s3[(S3)]
+
+subgraph High Level Design
+    direction LR 
+    client[web client fa:fa-user]
+    collector[Collector fa:fa-computer]
+    rmq>fa:fa-envelope fa:fa-envelope fa:fa-envelope RMQ]
+    db[(MongoDB)]
+    es[(Elasticsearch)]
+    clickhouse[(Clickhouse)]
+
+    mgmt[Black]
+        style mgmt fill:#000
+    detection[Black]
+        style detection fill:#000
+    discovery[Black]
+        style discovery fill:#000
+
+    subgraph Collector Management
+        mgmt
+    end
+    subgraph Detection/ Data path
+        detection
+    end
+    subgraph Discovery
+        discovery
+    end
+    collector --> mgmt --> db
+    collector --> detection --> db
+    collector --> discovery --> db
+    detection --store and detect\nendpoint events-->es
+    detection --store events for anomaly\ndetection inference-->clickhouse
+
+    client --> rmq --> mgmt
+    client <--> db
+end
+        
+
+
+subgraph Collector Management
+    direction LR
+    collector[collector fa:fa-computer]
+    ws[web server]
+    rmq>fa:fa-envelope fa:fa-envelope fa:fa-envelope RMQ]
+    db[(MongoDB)]
+    mgmt_gw[MGMT gateway]
+    mgmt_core[MGMT core]
+    policy_enforcer[policy enforcer]
+    cnc[CNC]
+    download_manager[Download Manager]
+    s3[(S3)]
+    client[web client fa:fa-user]
+
+    client --> ws
+    ws <--> db
+
+    collector --> mgmt_gw --> rmq --> mgmt_core --> db
+    db --> policy_enforcer --Assign CMDs--> db
+    db --> cnc --Send CMDs--> collector
+    db & s3 --> download_manager --> collector
+    ws --> rmq
+end
+
+subgraph Discovery
+    ws[web server]
+    collector[collector fa:fa-computer]
+    db[(MongoDB)]
+    graph_db[(fa:fa-circle-nodes\nGraph DB)] 
+    s3[(S3)]
+    client[web client fa:fa-user]
+    disc_feeder[Discovery Feeder]
+    drm_connector[Dreamer Connector]
+    graph_creator[Graph Creator]
+    parser[Parser]
+    rbr[Risk Based Rules]
+    risk_enrichment[Risk Enrichment]
+    dgw[Data Gateway]
+
+
+    client --> ws
+    ws <--> db
+    graph_db --> ws
+
+    collector --1.a)Plugin collection--> dgw --> s3
+    ws --1.b)Manual user upload--> s3
+    ws --2)Trigger flow--> disc_feeder --3)Trigger flow--> parser
+    s3 --4)Fetch data--> parser
+    parser --> graph_creator --> graph_db
+    graph_creator --5)Calculate risks-->risk_enrichment
+    risk_enrichment --6)Add risks--> db
+    risk_enrichment --7)Calculate rules--> rbr --> db
+    ws --query graph(chat interface)--> drm_connector
+    db & graph_db --> drm_connector
+end
+
