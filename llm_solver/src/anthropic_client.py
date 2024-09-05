@@ -18,7 +18,11 @@ class ChatMessage:
     content: str
 
     def to_dict(self):
-        return {"role": self.role, "content": self.content}
+        return {"role": self.role, "content": str(self.content)}
+
+
+class SchemaValidationError(AssertionError):
+    pass
 
 
 class AnthropicWrapper:
