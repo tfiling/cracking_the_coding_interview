@@ -1,1 +1,3 @@
 typer==0.12.5
+anthropic
+diskcache==5.6.3

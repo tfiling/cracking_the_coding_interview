@@ -1,4 +1,3 @@
-import contextvars
 import datetime
 import logging
 import os
@@ -6,7 +5,7 @@ import sys
 
 def setup_logging(log_dir, log_level=logging.INFO, log_file_prefix=""):
     """
-    Set up logging to both stdout and a file using the root logger.
+    Set up logging to a file using the root logger.
     The log file is created in the specified directory with the current date and time as its name.
     """
 
@@ -21,10 +20,6 @@ def setup_logging(log_dir, log_level=logging.INFO, log_file_prefix=""):
     file_handler.setLevel(log_level)
     file_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(file_handler)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(logging.Formatter(log_format))
-    logger.addHandler(console_handler)
 
 
 def flush_logger():
