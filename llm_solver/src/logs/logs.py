@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 
-def setup_logging(log_dir, log_level=logging.INFO, log_file_prefix=""):
+def setup_logging(log_dir, log_level=logging.INFO, log_file_prefix="", debug_mode=False):
     """
     Set up logging to a file using the root logger.
     The log file is created in the specified directory with the current date and time as its name.
@@ -20,10 +20,15 @@ def setup_logging(log_dir, log_level=logging.INFO, log_file_prefix=""):
     file_handler.setLevel(log_level)
     file_handler.setFormatter(logging.Formatter(log_format))
     logger.addHandler(file_handler)
+    if debug_mode:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(log_level)
+        console_handler.setFormatter(logging.Formatter(log_format))
+        logger.addHandler(console_handler)
 
 
 def flush_logger():
     """Flush the logger to ensure all messages are written."""
     for handler in logging.getLogger().handlers:
         handler.flush()
-    logging.info("Logger flushed.")
+    logging.debug("Logger flushed.")
