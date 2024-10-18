@@ -14,6 +14,7 @@ flowchart LR
 subgraph High Level Design
     direction LR 
     client[web client fa:fa-user]
+    web_backend[Web Backend]
     collector[Collector fa:fa-computer]
     rmq>fa:fa-envelope fa:fa-envelope fa:fa-envelope RMQ]
     db[(MongoDB)]
@@ -43,7 +44,7 @@ subgraph High Level Design
     detection --store events for anomaly\ndetection inference-->clickhouse
 
     client --> rmq --> mgmt
-    client <--> db
+    client <--> web_backend <--> db
 end
         
 
