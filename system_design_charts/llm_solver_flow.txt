@@ -1,0 +1,22 @@
+flowchart TD
+    start((start))
+        style start fill:#000
+    initial_analysis
+    test_cases_generated
+    tests_implemented
+    is_solution_good{Is the solution good enough}
+    solution_implmented
+    which_approaches{which aproach}
+
+    %% Approaches
+    dynamic_programming
+
+    start --explain me the question--> initial_analysis
+    initial_analysis --"ok"--> test_cases_generated
+    test_cases_generated --validate--> test_cases_generated
+    test_cases_generated --"ok"--> tests_implemented
+    tests_implemented --suggest algorithm--> is_solution_good
+    is_solution_good --"good enough - implement"-->solution_implmented
+    is_solution_good --should_change_approach--> which_approaches
+    which_approaches --> dynamic_programming --> solution_implmented
+    which_approaches --> suggest_data_structure --> solution_implmented
