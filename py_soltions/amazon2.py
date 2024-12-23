@@ -26,7 +26,7 @@ def _count_items(s, start_idx, end_idx):
     return res
 
 
-def _find_compartments(s, start_idx, end_idx, res_cache):
+def _find_compartments(s, start_idx, end_idx, res_cache, curr_depth):
     # start_idx, end_idx are inclusive, 0 based
     if not s:
         return 0, -1, -1
@@ -36,12 +36,13 @@ def _find_compartments(s, start_idx, end_idx, res_cache):
     while end_idx > start_idx and s[end_idx] != "|":
         end_idx -= 1
     if start_idx < end_idx:
-        for cache_res_start, cache_Res_end in res_cache.keys():
-            if start_idx <= cache_res_start and end_idx >= cache_Res_end:
-                return (res_cache[cache_res_start, cache_Res_end] +
-                        _find_compartments(s, start_idx, cache_res_start, res_cache)[0] +
-                        _find_compartments(s, cache_Res_end, end_idx, res_cache)[0]), start_idx, end_idx
-        # Cache miss
+        if curr_depth < 500:
+            for cache_res_start, cache_Res_end in sorted(res_cache.keys(), key=lambda indices: indices[1] - indices[0], reverse=True):
+                if start_idx <= cache_res_start and end_idx >= cache_Res_end:
+                    return (res_cache[cache_res_start, cache_Res_end] +
+                            _find_compartments(s, start_idx, cache_res_start, res_cache, curr_depth+1)[0] +
+                            _find_compartments(s, cache_Res_end, end_idx, res_cache, curr_depth+1)[0]), start_idx, end_idx
+        # Cache miss or too deep recursion
         res = _count_items(s, start_idx, end_idx)
     return res, start_idx, end_idx
 
@@ -50,7 +51,7 @@ def numberOfItems(s, startIndices, endIndices):
     res = []
     res_cache = {}
     for i in range(len(startIndices)):
-        items_count, compartment_start, compartment_end = _find_compartments(s, startIndices[i] - 1, endIndices[i] - 1, res_cache)
+        items_count, compartment_start, compartment_end = _find_compartments(s, startIndices[i] - 1, endIndices[i] - 1, res_cache, 0)
         if compartment_start > 0 and compartment_end > 0:
             # Valid cache res
             res_cache[(compartment_start, compartment_end)] = items_count
