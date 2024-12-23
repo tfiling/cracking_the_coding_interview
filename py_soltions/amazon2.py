@@ -19,25 +19,42 @@ import sys
 #
 
 def _count_items(s, start_idx, end_idx):
+    res = 0
+    for i in range(start_idx, end_idx + 1):
+        if s[i] == "*":
+            res += 1
+    return res
+
+
+def _find_compartments(s, start_idx, end_idx, res_cache):
     # start_idx, end_idx are inclusive, 0 based
     if not s:
-        return 0
+        return 0, -1, -1
     res = 0
     while start_idx < end_idx and s[start_idx] != "|":
         start_idx += 1
     while end_idx > start_idx and s[end_idx] != "|":
         end_idx -= 1
     if start_idx < end_idx:
-        for i in range(start_idx, end_idx+1):
-            if s[i] == "*":
-                res += 1
-    return res
+        for cache_res_start, cache_Res_end in res_cache.keys():
+            if start_idx <= cache_res_start and end_idx >= cache_Res_end:
+                return (res_cache[cache_res_start, cache_Res_end] +
+                        _find_compartments(s, start_idx, cache_res_start, res_cache)[0] +
+                        _find_compartments(s, cache_Res_end, end_idx, res_cache)[0]), start_idx, end_idx
+        # Cache miss
+        res = _count_items(s, start_idx, end_idx)
+    return res, start_idx, end_idx
 
 
 def numberOfItems(s, startIndices, endIndices):
     res = []
+    res_cache = {}
     for i in range(len(startIndices)):
-        res.append(_count_items(s, startIndices[i] - 1, endIndices[i] - 1))
+        items_count, compartment_start, compartment_end = _find_compartments(s, startIndices[i] - 1, endIndices[i] - 1, res_cache)
+        if compartment_start > 0 and compartment_end > 0:
+            # Valid cache res
+            res_cache[(compartment_start, compartment_end)] = items_count
+        res.append(items_count)
     return res
 
 if __name__ == '__main__':
